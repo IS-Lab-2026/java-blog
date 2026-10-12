@@ -1,0 +1,16 @@
+git init
+git branch -M main
+
+# Create .gitignore
+cat << 'EOF' > .gitignore
+target/
+.classpath
+.project
+.settings/
+.idea/
+*.iml
+.vscode/
+*.class
+*.log
+.DS_Store
+EOF
