@@ -1,0 +1,7 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<footer class="site-footer">
+    <a class="brand footer-brand" href="<c:url value='/posts'/>"><span class="brand-mark">P</span><span>Papertrail<span class="brand-dot">.</span></span></a>
+    <p>Stories, ideas, and the people behind them.</p>
+    <div class="footer-links"><a href="<c:url value='/about'/>">About</a><a href="<c:url value='/contact'/>">Contact</a><a href="<c:url value='/posts'/>">Read stories</a></div>
+    <small>&copy; <%= java.time.Year.now() %> Papertrail</small>
+</footer>

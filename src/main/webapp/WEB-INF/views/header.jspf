@@ -1,0 +1,26 @@
+<%@ taglib uri="jakarta.tags.core" prefix="c" %>
+<header class="site-header">
+    <a class="brand" href="<c:url value='/posts'/>"><span class="brand-mark">P</span><span>Papertrail<span class="brand-dot">.</span></span></a>
+    <nav class="primary-nav" aria-label="Main navigation">
+        <a href="<c:url value='/posts'/>">Stories</a>
+        <a href="<c:url value='/about'/>">About</a>
+        <a href="<c:url value='/contact'/>">Contact</a>
+    </nav>
+    <div class="header-actions">
+        <c:choose>
+            <c:when test="${not empty sessionScope.userId}">
+                <a class="quiet-link" href="<c:url value='/notifications'/>">Notifications</a>
+                <c:choose>
+                    <c:when test="${sessionScope.role eq 'admin'}"><a class="quiet-link" href="<c:url value='/admin'/>">Admin</a></c:when>
+                    <c:when test="${sessionScope.role eq 'editor'}"><a class="quiet-link" href="<c:url value='/editor'/>">Studio</a></c:when>
+                </c:choose>
+                <span class="avatar-label"><c:out value="${sessionScope.userName}"/></span>
+                <form method="post" action="<c:url value='/logout'/>"><input type="hidden" name="csrf" value="<c:out value='${sessionScope.csrfToken}'/>"/><button class="button button-small button-outline" type="submit">Sign out</button></form>
+            </c:when>
+            <c:otherwise>
+                <a class="quiet-link" href="<c:url value='/login'/>">Sign in</a>
+                <a class="button button-small" href="<c:url value='/register'/>">Join Papertrail</a>
+            </c:otherwise>
+        </c:choose>
+    </div>
+</header>
