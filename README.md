@@ -4,18 +4,27 @@ A Jakarta Servlet/JSP blog with reader, editor, and administrator workflows.
 
 ## Setup
 
-1. Create the schema in MySQL:
+1. Create the schema in MySQL (the configured database user must have permission to create the database):
 
    ```sh
    mysql -u "$DB_USER" -p < db/schema.sql
    ```
 
-2. Configure database access with `DB_URL`, `DB_USER`, and `DB_PASSWORD`. The defaults target `jdbc:mysql://localhost:3306/blog_db`, user `root`, and an empty password for local development.
+2. Configure `DB_URL`, `DB_USER`, and `DB_PASSWORD` for the Tomcat service. For local MySQL using password authentication without TLS, use a URL like:
+
+   ```text
+   jdbc:mysql://127.0.0.1:3306/blog_db?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+   ```
+
+   If using systemd, make these variables available to the service with `sudo systemctl edit tomcat11`, then run `sudo systemctl daemon-reload`. Shell exports alone are not inherited by the Tomcat service.
+
 3. Set `ADMIN_EMAIL` to the email address that should receive initial administrator access. Register using that address before registering regular accounts. Without a matching configured address, registrations receive reader access.
-4. Build and deploy the WAR to a Jakarta EE 10-compatible servlet container such as Tomcat 10.1 or newer:
+4. Build and deploy the WAR to Tomcat 10.1 or newer:
 
    ```sh
    mvn clean package
+   sudo cp target/java-blog.war /var/lib/tomcat11/webapps/
+   sudo systemctl restart tomcat11
    ```
 
 For an existing database created before post authors were added, back it up and run the one-time migration:
@@ -24,7 +33,7 @@ For an existing database created before post authors were added, back it up and 
 mysql -u "$DB_USER" -p blog_db < db/migrations/20261016_add_post_author_id.sql
 ```
 
-The public journal is available at the application context root. Register and sign in to like stories, comment, follow editors, and view notifications. Editors can create drafts and publish stories from `/editor`. Administrators can manage accounts, stories, comments, contact messages, and review sign-in history from `/admin`.
+Open `http://localhost:8080/java-blog/`. Register and sign in to like stories, comment, follow editors, and view notifications. Editors can create drafts and publish stories from `/editor`. Administrators can manage accounts, stories, comments, contact messages, and review sign-in history from `/admin`.
 
 ## Roles and notifications
 
