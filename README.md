@@ -18,6 +18,12 @@ A Jakarta Servlet/JSP blog with reader, editor, and administrator workflows.
    mvn clean package
    ```
 
+For an existing database created before post authors were added, back it up and run the one-time migration:
+
+```sh
+mysql -u "$DB_USER" -p blog_db < db/migrations/20261016_add_post_author_id.sql
+```
+
 The public journal is available at the application context root. Register and sign in to like stories, comment, follow editors, and view notifications. Editors can create drafts and publish stories from `/editor`. Administrators can manage accounts, stories, comments, contact messages, and review sign-in history from `/admin`.
 
 ## Roles and notifications
