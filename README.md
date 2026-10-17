@@ -33,13 +33,15 @@ For an existing database, back it up and run only migrations that have not alrea
 mysql -u "$DB_USER" -p blog_db < db/migrations/20261016_add_post_author_id.sql
 mysql -u "$DB_USER" -p blog_db < db/migrations/20261017_account_dashboard_schema.sql
 mysql -u "$DB_USER" -p blog_db < db/migrations/20261017_admin_contact_message.sql
+mysql -u "$DB_USER" -p blog_db < db/migrations/20261017_notification_created_at.sql
+mysql -u "$DB_USER" -p blog_db < db/migrations/20261017_admin_contact_message.sql
 ```
 
 Open `http://localhost:8080/java-blog/`. Register and sign in to like stories, comment, follow editors, and view notifications. Editors can create drafts and publish stories from `/editor`. Administrators can manage accounts, stories, comments, contact messages, and review sign-in history from `/admin`.
 
 ## Roles and notifications
 
-- After sign-in, `user` accounts land on `/posts`, editors on `/editor`, and admins on `/admin`. Signed-in accounts can also open `/notifications`.
+- After sign-in, `user` accounts land on `/posts`, editors on `/editor`, and admins on `/admin`. Readers can see followed editors at `/following`; signed-in accounts can also open `/notifications`.
 - Readers can read public stories, like, comment, follow editors, and receive inbox notifications.
 - Editors can create and edit their own drafts and publish stories. Their followers are notified when a draft is first published.
 - Administrators can manage reader/editor access, hide or restore posts/comments, review logins and contact messages, and receive activity notifications.

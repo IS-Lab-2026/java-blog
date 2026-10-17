@@ -37,6 +37,26 @@
             </div>
         </aside>
     </div>
+    <section class="admin-section">
+        <div class="section-heading"><div><span class="eyebrow">Audience</span><h2>Story engagement</h2></div></div>
+        <div class="table-wrap"><table><thead><tr><th>Story</th><th>Status</th><th>Reads</th><th>Likes</th><th>Comments</th></tr></thead><tbody>
+            <c:forEach var="item" items="${engagement}"><tr><td><c:out value="${item.title}"/></td><td><span class="status-pill"><c:out value="${item.blog_status}"/></span></td><td><c:out value="${item.views}"/></td><td><c:out value="${item.like_count}"/></td><td><c:out value="${item.comment_count}"/></td></tr></c:forEach>
+            <c:if test="${empty engagement}"><tr><td colspan="5" class="table-empty">Publish a story to see its engagement.</td></tr></c:if>
+        </tbody></table></div>
+    </section>
+    <div class="admin-overview-grid editor-audience-grid">
+        <section class="admin-section">
+            <div class="section-heading"><div><span class="eyebrow">Conversation</span><h2>Recent comments</h2></div></div>
+            <div class="message-list"><c:forEach var="comment" items="${recentComments}"><article class="message-item"><div class="message-heading"><div><span class="eyebrow"><c:out value="${comment.user_name}"/> on <c:out value="${comment.post_title}"/></span><time><c:out value="${comment.created_at}"/></time></div></div><p><c:out value="${comment.comment}"/></p></article></c:forEach><c:if test="${empty recentComments}"><p class="empty-note">No comments on your stories yet.</p></c:if></div>
+        </section>
+        <section class="admin-section">
+            <div class="section-heading"><div><span class="eyebrow">Community</span><h2>Subscribers</h2></div><span class="count-pill"><c:out value="${subscribers.size()}"/></span></div>
+            <div class="table-wrap"><table><thead><tr><th>Reader</th><th>Following since</th></tr></thead><tbody>
+                <c:forEach var="subscriber" items="${subscribers}"><tr><td><c:out value="${subscriber.user_name}"/></td><td><c:out value="${subscriber.subscription_date}"/></td></tr></c:forEach>
+                <c:if test="${empty subscribers}"><tr><td colspan="2" class="table-empty">No subscribers yet.</td></tr></c:if>
+            </tbody></table></div>
+        </section>
+    </div>
 </main>
 <%@ include file="footer.jspf" %>
 </body>

@@ -36,6 +36,7 @@ public class AdminServlet extends HttpServlet {
             request.setAttribute("comments", loadComments(connection));
             request.setAttribute("logins", loadLogins(connection));
             request.setAttribute("messages", loadContactMessages(connection));
+            request.setAttribute("categories", loadCategories(connection));
             request.getRequestDispatcher("/WEB-INF/views/admin.jsp").forward(request, response);
         } catch (SQLException | ClassNotFoundException exception) {
             getServletContext().log("Could not load admin portal", exception);
@@ -53,6 +54,12 @@ public class AdminServlet extends HttpServlet {
             return;
         }
         String action = request.getParameter("action");
+        String categoryName = request.getParameter("name");
+        if ("create-category".equals(action)
+                && (categoryName == null || categoryName.trim().isEmpty() || categoryName.trim().length() > 300)) {
+            response.sendRedirect(request.getContextPath() + "/admin?tab=categories&error=invalid-category");
+            return;
+        }
         int id = parseId(request.getParameter("id"));
         int adminId = AppSecurity.userId(request);
         try (Connection connection = DBConnection.getConnection()) {
@@ -86,6 +93,9 @@ public class AdminServlet extends HttpServlet {
                     changed = update(connection, "UPDATE contact_message SET is_resolved = TRUE WHERE message_id = ?",
                             id);
                     break;
+                case "create-category":
+                    changed = createCategory(connection, categoryName.trim());
+                    break;
                 default:
                     response.sendError(HttpServletResponse.SC_BAD_REQUEST);
                     return;
@@ -96,6 +106,11 @@ public class AdminServlet extends HttpServlet {
             }
         } catch (SQLException | ClassNotFoundException exception) {
             getServletContext().log("Admin action failed", exception);
+            if ("create-category".equals(action) && exception instanceof SQLException
+                    && "23000".equals(((SQLException) exception).getSQLState())) {
+                response.sendRedirect(request.getContextPath() + "/admin?tab=categories&error=duplicate-category");
+                return;
+            }
             response.sendError(HttpServletResponse.SC_SERVICE_UNAVAILABLE, "The requested change could not be saved.");
             return;
         }
@@ -145,6 +160,18 @@ public class AdminServlet extends HttpServlet {
     private List<Map<String, Object>> loadContactMessages(Connection connection) throws SQLException {
         return query(connection, "SELECT message_id, sender_name, sender_email, subject, message, submitted_at, "
                 + "is_resolved FROM contact_message ORDER BY is_resolved, submitted_at DESC LIMIT 200");
+    }
+
+    private List<Map<String, Object>> loadCategories(Connection connection) throws SQLException {
+        return query(connection, "SELECT category_id, name FROM categories ORDER BY name");
+    }
+
+    private int createCategory(Connection connection, String name) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(
+                "INSERT INTO categories (name) VALUES (?)")) {
+            statement.setString(1, name);
+            return statement.executeUpdate();
+        }
     }
 
     private List<Map<String, Object>> query(Connection connection, String sql) throws SQLException {
@@ -209,6 +236,7 @@ public class AdminServlet extends HttpServlet {
             case "comments":
             case "logins":
             case "messages":
+            case "categories":
                 return tab;
             default:
                 return "overview";

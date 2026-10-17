@@ -10,6 +10,7 @@
         <c:choose>
             <c:when test="${not empty sessionScope.userId}">
                 <a class="quiet-link" href="<c:url value='/notifications'/>">Notifications</a>
+                <c:if test="${sessionScope.role eq 'user'}"><a class="quiet-link" href="<c:url value='/following'/>">Following</a></c:if>
                 <c:choose>
                     <c:when test="${sessionScope.role eq 'admin'}"><a class="quiet-link" href="<c:url value='/admin'/>">Admin</a></c:when>
                     <c:when test="${sessionScope.role eq 'editor'}"><a class="quiet-link" href="<c:url value='/editor'/>">Studio</a></c:when>
