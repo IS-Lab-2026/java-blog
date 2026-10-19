@@ -19,7 +19,7 @@ A Jakarta Servlet/JSP blog with reader, editor, and administrator workflows.
    If using systemd, make these variables available to the service with `sudo systemctl edit tomcat11`, then run `sudo systemctl daemon-reload`. Shell exports alone are not inherited by the Tomcat service.
 
 3. Set `ADMIN_EMAIL` to the email address that should receive initial administrator access. Register using that address before registering regular accounts. Without a matching configured address, registrations receive reader access.
-4. Build and deploy the WAR to Tomcat 10.1 or newer:
+4. Use Java 25 for both Maven and the Tomcat service. Build and deploy the WAR to Tomcat 10.1 or newer:
 
    ```sh
    mvn clean package
