@@ -21,6 +21,7 @@
         <a class="<c:if test='${tab eq "users"}'>selected</c:if>" href="<c:url value='/admin'><c:param name='tab' value='users'/></c:url>">People</a>
         <a class="<c:if test='${tab eq "logins"}'>selected</c:if>" href="<c:url value='/admin'><c:param name='tab' value='logins'/></c:url>">Logins</a>
         <a class="<c:if test='${tab eq "messages"}'>selected</c:if>" href="<c:url value='/admin'><c:param name='tab' value='messages'/></c:url>">Contact</a>
+        <a class="<c:if test='${tab eq "categories"}'>selected</c:if>" href="<c:url value='/admin'><c:param name='tab' value='categories'/></c:url>">Categories</a>
     </nav>
     <c:if test="${tab eq 'overview'}">
         <section class="metric-grid">
@@ -63,6 +64,25 @@
     <c:if test="${tab eq 'messages'}">
         <section class="admin-section"><div class="section-heading"><div><span class="eyebrow">Reader mail</span><h2>Contact messages</h2></div></div>
             <div class="message-list"><c:forEach var="message" items="${messages}"><article class="message-item"><div class="message-heading"><div><span class="eyebrow"><c:out value="${message.sender_name}"/> &middot; <c:out value="${message.sender_email}"/></span><h3><c:out value="${message.subject}"/></h3></div><c:choose><c:when test="${message.is_resolved}"><span class="status-pill">Resolved</span></c:when><c:otherwise><form method="post" action="<c:url value='/admin'/>"><input type="hidden" name="csrf" value="<c:out value='${sessionScope.csrfToken}'/>"/><input type="hidden" name="id" value="<c:out value='${message.message_id}'/>"/><input type="hidden" name="tab" value="messages"/><button class="text-button" name="action" value="resolve-message">Mark resolved</button></form></c:otherwise></c:choose></div><p><c:out value="${message.message}"/></p><time><c:out value="${message.submitted_at}"/></time></article></c:forEach><c:if test="${empty messages}"><p class="empty-note">No messages in the inbox.</p></c:if></div>
+        </section>
+    </c:if>
+    <c:if test="${tab eq 'categories'}">
+        <section class="admin-section">
+            <div class="section-heading"><div><span class="eyebrow">Story organization</span><h2>Categories</h2></div></div>
+            <c:if test="${param.created eq '1'}"><p class="form-success">Category added.</p></c:if>
+            <c:if test="${param.error eq 'invalid-category'}"><p class="form-error" role="alert">Enter a category name of 1 to 300 characters.</p></c:if>
+            <c:if test="${param.error eq 'duplicate-category'}"><p class="form-error" role="alert">That category already exists.</p></c:if>
+            <form class="form-stack" method="post" action="<c:url value='/admin'/>">
+                <input type="hidden" name="csrf" value="<c:out value='${sessionScope.csrfToken}'/>"/>
+                <input type="hidden" name="action" value="create-category"/>
+                <input type="hidden" name="tab" value="categories"/>
+                <label>New category<input name="name" maxlength="300" required></label>
+                <div class="form-actions"><button class="button" type="submit">Add category</button></div>
+            </form>
+            <div class="table-wrap"><table><thead><tr><th>Category</th><th>ID</th></tr></thead><tbody>
+                <c:forEach var="category" items="${categories}"><tr><td><c:out value="${category.name}"/></td><td><c:out value="${category.category_id}"/></td></tr></c:forEach>
+                <c:if test="${empty categories}"><tr><td colspan="2" class="table-empty">No categories yet.</td></tr></c:if>
+            </tbody></table></div>
         </section>
     </c:if>
 </main>

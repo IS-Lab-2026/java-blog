@@ -35,6 +35,9 @@ public class EditorServlet extends HttpServlet {
         int userId = AppSecurity.userId(request);
         try (Connection connection = DBConnection.getConnection()) {
             request.setAttribute("posts", listPosts(connection, userId));
+            request.setAttribute("engagement", loadEngagement(connection, userId));
+            request.setAttribute("recentComments", loadRecentComments(connection, userId));
+            request.setAttribute("subscribers", loadSubscribers(connection, userId));
             request.setAttribute("categories", loadCategories(connection));
             String id = request.getParameter("id");
             if (id != null) {
@@ -138,6 +141,49 @@ public class EditorServlet extends HttpServlet {
             }
         }
         return categories;
+    }
+
+    private List<Map<String, Object>> loadEngagement(Connection connection, int editorId) throws SQLException {
+        String sql = "SELECT p.blog_id, p.title, p.slug, p.blog_status, p.views, "
+                + "(SELECT COUNT(*) FROM likes l WHERE l.blog_id = p.blog_id) AS like_count, "
+                + "(SELECT COUNT(*) FROM comment c WHERE c.blog_id = p.blog_id AND c.is_visible = TRUE) "
+                + "AS comment_count FROM post p WHERE p.author_id = ? ORDER BY p.updated_at DESC LIMIT 200";
+        return queryEditorRows(connection, sql, editorId);
+    }
+
+    private List<Map<String, Object>> loadRecentComments(Connection connection, int editorId) throws SQLException {
+        String sql = "SELECT c.comment_id, c.comment, c.created_at, u.user_name, p.title AS post_title, p.slug "
+                + "FROM comment c JOIN post p ON p.blog_id = c.blog_id "
+                + "JOIN users u ON u.user_id = c.user_id "
+                + "WHERE p.author_id = ? AND c.is_visible = TRUE ORDER BY c.created_at DESC LIMIT 100";
+        return queryEditorRows(connection, sql, editorId);
+    }
+
+    private List<Map<String, Object>> loadSubscribers(Connection connection, int editorId) throws SQLException {
+        String sql = "SELECT u.user_name, s.subscription_date FROM subscription s "
+                + "JOIN users u ON u.user_id = s.user_id "
+                + "WHERE s.editor_id = ? AND u.is_active = TRUE "
+                + "ORDER BY s.subscription_date DESC, u.user_name LIMIT 200";
+        return queryEditorRows(connection, sql, editorId);
+    }
+
+    private List<Map<String, Object>> queryEditorRows(Connection connection, String sql, int editorId)
+            throws SQLException {
+        List<Map<String, Object>> rows = new ArrayList<>();
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
+            statement.setInt(1, editorId);
+            try (ResultSet result = statement.executeQuery()) {
+                int columns = result.getMetaData().getColumnCount();
+                while (result.next()) {
+                    Map<String, Object> row = new LinkedHashMap<>();
+                    for (int column = 1; column <= columns; column++) {
+                        row.put(result.getMetaData().getColumnLabel(column), result.getObject(column));
+                    }
+                    rows.add(row);
+                }
+            }
+        }
+        return rows;
     }
 
     private Post findOwnedPost(Connection connection, int postId, int authorId) throws SQLException {
